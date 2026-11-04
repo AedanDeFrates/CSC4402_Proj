@@ -46,9 +46,6 @@ CREATE TABLE Sales (
 
 CREATE TABLE Employees (
 	employee_id INT AUTO_INCREMENT PRIMARY KEY,
-);
-
-CREATE TABLE Managers (
-	manager_id INT AUTO_INCREMENT PRIMARY KEY,
-	
+	employee_role VARCHAR(15) CHECK (employee_role IN ('manager', 'bar_tender')), -- only two rn
+	employee_name VARCHAR(30)
 );
