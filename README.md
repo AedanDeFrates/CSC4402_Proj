@@ -1,5 +1,5 @@
 # CSC4402_Proj
-
+Many bars use a spreadsheet system to manually calculate the error in pours for a night. This involves tracking sales and volume  in ounces of open bottles, and then comparing them to previous nights. This involves a lot of manual data transfer for sales data, and is a monotonous task for managers. This makes employee performance analysis far more difficult. We propose an integration of POS data with inventory data. What this means is that the volume of alcohol from all sales will be tracked and compared to the inventory count at the end of the night.
 
 ## Python Environment Setup
 
