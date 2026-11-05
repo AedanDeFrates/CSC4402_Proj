@@ -5,4 +5,5 @@
 ### Virtual env setup
 
 conda create -n bar_db python==3.10
-conda install mysql-connector-python
+pip install mysql-connector-python
+pip install PySimpleGUI

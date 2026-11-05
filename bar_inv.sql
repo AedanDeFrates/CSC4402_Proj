@@ -5,6 +5,7 @@ CREATE TABLE Menu_Items (
 	-- ingredients INT[] -- Array of Stock Item primary key(s)
 );
 
+-- Intermediary Table: (Many-To-Many) Tracks relations between Menu_Items and Ingredients
 CREATE TABLE Menu_Item_Ingredients (
 	menu_id INT,
 	stock_id INT,
@@ -25,6 +26,7 @@ CREATE TABLE Stock_Items (
 	serving_size FLOAT(4) -- for liquor only
 );
 
+-- Intermediary Table: (Many-To-Many) Tracks relations between menu items and sales
 CREATE TABLE Sale_Menu_Items (
 	sale_id INT,
 	menu_id INT,
@@ -47,5 +49,7 @@ CREATE TABLE Sales (
 CREATE TABLE Employees (
 	employee_id INT AUTO_INCREMENT PRIMARY KEY,
 	employee_role VARCHAR(15) CHECK (employee_role IN ('manager', 'bar_tender')), -- only two rn
-	employee_name VARCHAR(30)
+	employee_name VARCHAR(30),
+
+	passcode INT NOT NULL
 );
