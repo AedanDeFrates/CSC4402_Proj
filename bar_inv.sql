@@ -51,5 +51,5 @@ CREATE TABLE Employees (
 	employee_role VARCHAR(15) CHECK (employee_role IN ('manager', 'bar_tender')), -- only two rn
 	employee_name VARCHAR(30),
 
-	passcode INT NOT NULL
+	passcode INT NOT NULL UNIQUE
 );

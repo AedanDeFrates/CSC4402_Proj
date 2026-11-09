@@ -1,0 +1,3 @@
+{
+    "liquor" : "INSERT INTO Stock_Items (stock_name, item_type, bottle_count, bottle_size_oz, open_bottle_oz, serving_size) VALUES (%s, %s, %s, %s, %s, %s)"
+}
