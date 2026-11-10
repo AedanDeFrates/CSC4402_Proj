@@ -1,37 +1,71 @@
 import PySimpleGUI as sg
+import mysql.connector
 import argparse
 
 parser = argparse.ArgumentParser()
+parser.add_argument("--device", type=str, choices=["unix", "windows", "mac"], default="unix")
+parser.add_argument("--password", type=str, default="")
+parser.add_argument("--socket_path", type=str, default="/var/run/mysqld/mysqld.sock")
 parser.add_argument("--login_test", type=bool, default=False)
 
 args = parser.parse_args()
 
+if args.device == "unix":
+    connection = mysql.connector.connect(
+            user="root", 
+            password=args.password,
+            database="Bar_Database",
+            unix_socket=args.socket_path)
+elif args.device == "windows":
+    connection = mysql.connector.connect()
+elif args.device == "mac":
+    connection = mysql.connector.connect()
+
+cursor = connection.cursor()
+
+def verify_passcode(submission) -> bool:
+    query = f"SELECT passcode FROM Employees WHERE passcode = %s"
+    try:
+        cursor.execute(query, (submission, ))
+        result = cursor.fetchone()
+    except mysql.connector.Error as e:
+        print(f"DB error: {e}")
+        return False
+    if result is None:
+        return False
+    return result[0] == submission
+
 def login_test():
     sg.theme('Black')
     layout = [
-        [sg.Text('Enter 4-Digit Combo / PIN', font=('Helvetica', 14), justification='center', expand_x=True)],
-        [sg.Input(password_char='*', size=(10, 1), font=('Helvetica', 18), key='-PIN-', justification='center', expand_x=True)],
-        [sg.HorizontalSeparator()],
-        [sg.Button('Submit', bind_return_key=True, expand_x=True), sg.Button('Exit', expand_x=True)]
+        [sg.Text("Enter Passcode", font=("Helvetica", 12))],
+        [sg.Input(key="-PIN-", password_char='*', size=(10, 1), font=("Helvetica", 16), enable_events=True, justification="center")],
+        [sg.Text("", key='-STATUS-', font=("Helvetica", 10), text_color="gray")]
     ]
-    window = sg.Window('LOGIN', layout, finalize=True)
-    CORRECT_PIN = "1234"
+    
+    window = sg.Window('login', layout, finalize=True)
+    window['-PIN-'].set_focus()
+    print(window['-PIN-'].get())
+
     while True:
         event, values = window.read()
         if event == sg.WIN_CLOSED or event == 'Exit':
             break
-        if event == 'Submit':
-            entered_pin = values['-PIN-']
-            if len(entered_pin) == 4 and entered_pin.isdigit():
-                if entered_pin == CORRECT_PIN:
+        if event == '-PIN-':
+            current_val = values['-PIN-']
+            filtered_val = ''.join([char for char in current_val if char.isdigit()])
+            if len(filtered_val) > 4:
+                filtered_val = filtered_val[:4]
+            if filtered_val != current_val:
+                window['-PIN-'].update(filtered_val)
+            if len(filtered_val) == 4:
+                window['-STATUS-'].update("Verifying")
+                if verify_passcode(window['-PIN-'].get()):
                     print('Access Granted Welcome to the system!')
                     break
                 else:
-                    print('Incorrect PIN. Please try again.')
                     window['-PIN-'].update('')
-            else:
-                print('Please enter a valid 4-digit numeric code.')
-                window['-PIN-'].update('')
+                    window['-STATUS-'].update('Wrong Passcode. Try Again')
     window.close()
 
 if __name__=="__main__":
@@ -66,3 +100,5 @@ if __name__=="__main__":
         event, values = window.read()
         if event in (sg.WIN_CLOSED, 'Exit'):
             break
+    cursor.close()
+    connection.close()
