@@ -1,0 +1,42 @@
+[
+  {
+    "stock_name": "Bud Light",
+    "item_type": "beer",
+    "bottle_count": 24,
+    "bottle_size_oz": null,
+    "open_bottle_oz": 0,
+    "serving_size": null
+  },
+  {
+    "stock_name": "Coors Light",
+    "item_type": "beer",
+    "bottle_count": 18,
+    "bottle_size_oz": null,
+    "open_bottle_oz": 0,
+    "serving_size": null
+  },
+  {
+    "stock_name": "Miller Lite",
+    "item_type": "beer",
+    "bottle_count": 12,
+    "bottle_size_oz": null,
+    "open_bottle_oz": 0,
+    "serving_size": null
+  },
+  {
+    "stock_name": "Corona Extra",
+    "item_type": "beer",
+    "bottle_count": 12,
+    "bottle_size_oz": null,
+    "open_bottle_oz": 0,
+    "serving_size": null
+  },
+  {
+    "stock_name": "Heineken",
+    "item_type": "beer",
+    "bottle_count": 12,
+    "bottle_size_oz": null,
+    "open_bottle_oz": 0,
+    "serving_size": null
+  }
+]
