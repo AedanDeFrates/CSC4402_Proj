@@ -8,6 +8,7 @@ parser.add_argument("--password", type=str, default="")
 parser.add_argument("--target_db", type=str, default="Bar_Database")
 parser.add_argument("--socket_path", type=str, default="/var/run/mysqld/mysqld.sock")
 parser.add_argument("--liquor_pop", type=bool, default=False)
+parser.add_argument("--employee_pop", type=bool, default=False)
 
 args = parser.parse_args()
 
@@ -37,8 +38,19 @@ def liquor_populator():
             i["serving_size"]
         ))
 
+def employee_populator():
+    with open("test_populators/employees.json", 'r') as f:
+        employees = json.load(f)
+    for i in employees:
+        cursor.execute(queries["employee"], (
+            i["employee_role"],
+            i["employee_name"],
+            i["passcode"],
+        ))
+
 if __name__=="__main__":
     if args.liquor_pop: liquor_populator()
+    if args.employee_pop: employee_populator()
 
     connection.commit()
     cursor.close()

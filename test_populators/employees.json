@@ -1,0 +1,22 @@
+[
+    {
+        "employee_role" : "manager",
+        "employee_name" : "Aedan",
+        "passcode" : 1111
+    },
+    {
+        "employee_role" : "bar_tender",
+        "employee_name" : "Matthew",
+        "passcode" : 2222
+    },
+    {
+        "employee_role" : "bar_tender",
+        "employee_name" : "Niya",
+        "passcode" : 5555
+    },
+    {
+        "employee_role" : "bar_tender",
+        "employee_name" : "Jordan",
+        "passcode" : 4444
+    }
+]

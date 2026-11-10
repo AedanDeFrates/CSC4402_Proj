@@ -23,14 +23,13 @@ if __name__=="__main__":
 
         cursor.execute(f'DROP DATABASE IF EXISTS {args.target_db};')
         cursor.execute(f'CREATE DATABASE {args.target_db};')
+        cursor.execute(f'USE `{args.target_db}`;')
 
-        # load db schema
         with open(args.script_path, 'r', encoding='utf-8') as f:
             sql_script=f.read()
-        for result in cursor.execute(sql_script):
-            if result.with_rows:
-                print(result.fetchall())
-        #commit to connection
+        cursor.execute(sql_script)
+        while cursor.nextset():
+            pass
         connection.commit()
     except Error as e:
         print(f"DB error: {e}")
