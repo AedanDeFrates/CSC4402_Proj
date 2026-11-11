@@ -35,6 +35,19 @@ def verify_passcode(submission) -> bool:
         return False
     return result[0] == submission
 
+def get_menu_items_by(drink_type : str) -> list:
+    query = f"SELECT drink_name FROM Menu_Items WHERE drink_type = %s"
+    try:
+        cursor.execute(query, (drink_type, ))
+        result = cursor.fetchall()
+    except mysql.connector.Error as e:
+        print(f"DB Error: {e}")
+        return []
+    if result is None:
+        return []
+    result = [row[0] for row in result]
+    return result
+
 def login() -> bool:
     sg.theme('Black')
     layout = [
@@ -90,17 +103,25 @@ def sales_interface():
         [sg.Text('Selected Item:'), sg.Text('None', key='-SELECTED-ITEM-')]
     ]
 
-    beers = []
-    mix = []
-    shots = []
+    beers = get_menu_items_by("beer")
+    mix = get_menu_items_by("mix_drink")
+    shots = get_menu_items_by("shot")
     right_col = [
-        [sg.Text('BEER'), sg.Text('MIXED DRINKS'), sg.Text('SHOTS')],
         [
-            sg.Listbox(values=beers, key='-BEER-LIST-', size=(10, 8), enable_events=True),
-            sg.Listbox(values=mix, key='-MIX-LIST-', size=(10, 8), enable_events=True),
-            sg.Listbox(values=shots, key='-SHOTS-LIST-', size=(10, 8), enable_events=True)
+            sg.Push(),
+            sg.Frame("Beers", [
+                [sg.Listbox(values=beers, key='-BEER-LIST-', size=(10, 8), enable_events=True)]
+                ], expand_x=True, expand_y=True),
+            sg.Push(),
+            sg.Frame("Mixed Drinks", [
+                [sg.Listbox(values=mix, key='-MIX-LIST-', size=(10, 8), enable_events=True)]
+                ], expand_x=True, expand_y=True),
+            sg.Push(),
+            sg.Frame("Shots", [
+                [sg.Listbox(values=shots, key='-SHOTS-LIST-', size=(10, 8), enable_events=True)]
+                ], expand_x=True, expand_y=True),
+            sg.Push(),
         ],
-
     ]
     layout = [
         [sg.Column(left_col, expand_x=True, expand_y=True), sg.Column(right_col, expand_x=True, expand_y=True)]
@@ -129,14 +150,13 @@ def sales_interface():
             window['-TAB-STATUS-'].update('')
         elif event == '-ADD-ITEM-':
             continue
-        elif event == '-ITEM-LIST-' and values['-ITEM-LIST-']:
-            window['-SELECTED-ITEM-'].update(values=[])
+        elif event in ('-BEER-LIST-', '-MIX-LIST-', '-SHOTS-LIST-') and values[event]:
+            selected_drink = values[event][0]
+            for list_key in ('-BEER-LIST-', '-MIX-LIST-', '-SHOTS-LIST-'):
+                if list_key != event:
+                    window[list_key].update(set_to_index=[])
+            window['-SELECTED-ITEM-'].update(selected_drink)
     window.close()
-
-def add_item_interface():
-    for i in range(4):
-        break
-
 
 #TODO: 1) Make POS system. 2) Add menu items to interface to easily make sales 3) Ability to make a tab and close it (finalize sale for db)
 

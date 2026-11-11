@@ -54,7 +54,8 @@ def menu_populator():
     for i in menu_items:
         cursor.execute(queries["menu_items"], (
             i["drink_name"],
-            i["price"]
+            i["price"],
+            i["drink_type"],
         ))
 
 if __name__=="__main__":

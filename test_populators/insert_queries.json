@@ -1,5 +1,5 @@
 {
     "liquor" : "INSERT INTO Stock_Items (stock_name, item_type, bottle_count, bottle_size_oz, open_bottle_oz, serving_size) VALUES (%s, %s, %s, %s, %s, %s)",
     "employee" : "INSERT INTO Employees (employee_role, employee_name, passcode) VALUES (%s, %s, %s)",
-    "menu_items" : "INSERT INTO Menu_Items (drink_name, price) VALUES (%s, %s)"
+    "menu_items" : "INSERT INTO Menu_Items (drink_name, price, drink_type) VALUES (%s, %s, %s)"
 }

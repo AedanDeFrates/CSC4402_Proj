@@ -1,18 +1,23 @@
 [
     {
         "drink_name" : "Bud Light",
-        "price" : 4.5
+        "price" : 4.5,
+        "drink_type" : "beer"
+
     },
     {
         "drink_name" : "Miller Lite",
-        "price" : 4.5
+        "price" : 4.5,
+        "drink_type" : "beer"
     },
     {
         "drink_name" : "Corona Extra",
-        "price" : 4.5
+        "price" : 4.5,
+        "drink_type" : "beer"
     },
     {
         "drink_name" : "Heineken",
-        "price" : 4.5
+        "price" : 4.5,
+        "drink_type":"beer"
     }
 ]

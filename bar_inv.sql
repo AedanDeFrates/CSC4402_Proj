@@ -9,6 +9,7 @@ CREATE TABLE Employees (
 CREATE TABLE Menu_Items (
 	menu_id INT AUTO_INCREMENT PRIMARY KEY,
 	drink_name VARCHAR(15),
+	drink_type VARCHAR(20) CHECK (drink_type IN ('beer', 'mix_drink', 'shot', 'wine')),
 	price FLOAT(8) NOT NULL
 	-- ingredients INT[] -- Array of Stock Item primary key(s)
 );
