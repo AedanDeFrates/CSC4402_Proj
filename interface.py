@@ -89,8 +89,17 @@ def sales_interface():
         [sg.Listbox(values=[], key='-TAB-ITEMS-', size=(40, 12), expand_x=True, expand_y=True)],
         [sg.Text('Selected Item:'), sg.Text('None', key='-SELECTED-ITEM-')]
     ]
-    
+
+    beers = []
+    mix = []
+    shots = []
     right_col = [
+        [sg.Text('BEER'), sg.Text('MIXED DRINKS'), sg.Text('SHOTS')],
+        [
+            sg.Listbox(values=beers, key='-BEER-LIST-', size=(10, 8), enable_events=True),
+            sg.Listbox(values=mix, key='-MIX-LIST-', size=(10, 8), enable_events=True),
+            sg.Listbox(values=shots, key='-SHOTS-LIST-', size=(10, 8), enable_events=True)
+        ],
 
     ]
     layout = [
