@@ -8,8 +8,8 @@ CREATE TABLE Employees (
 
 CREATE TABLE Menu_Items (
 	menu_id INT AUTO_INCREMENT PRIMARY KEY,
-
-	price FLOAT(4) NOT NULL
+	drink_name VARCHAR(15),
+	price FLOAT(8) NOT NULL
 	-- ingredients INT[] -- Array of Stock Item primary key(s)
 );
 
@@ -34,6 +34,16 @@ CREATE TABLE Menu_Item_Ingredients (
 	FOREIGN KEY (stock_id) REFERENCES Stock_Items(stock_id)
 );
 
+-- Alcohols a menu item can be made with (for example, Tito's or Grey Goose).
+CREATE TABLE Menu_Item_Alcohol_Options (
+	menu_id INT,
+	stock_id INT,
+
+	PRIMARY KEY (menu_id, stock_id),
+	FOREIGN KEY (menu_id) REFERENCES Menu_Items(menu_id),
+	FOREIGN KEY (stock_id) REFERENCES Stock_Items(stock_id)
+);
+
 CREATE TABLE Sales (
 	sale_id INT AUTO_INCREMENT PRIMARY KEY,
 	sale_time DATETIME DEFAULT CURRENT_TIMESTAMP,
@@ -46,8 +56,11 @@ CREATE TABLE Sales (
 CREATE TABLE Sale_Menu_Items (
 	sale_id INT,
 	menu_id INT,
+	alcohol_stock_id INT NULL,
 
 	PRIMARY KEY (sale_id, menu_id),
 	FOREIGN KEY (sale_id) REFERENCES Sales(sale_id),
-	FOREIGN KEY (menu_id) REFERENCES Menu_Items(menu_id)
+	FOREIGN KEY (menu_id) REFERENCES Menu_Items(menu_id),
+	FOREIGN KEY (menu_id, alcohol_stock_id)
+		REFERENCES Menu_Item_Alcohol_Options(menu_id, stock_id)
 );

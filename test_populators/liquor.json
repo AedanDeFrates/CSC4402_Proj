@@ -25,14 +25,6 @@
     "serving_size": 1.5
   },
   {
-    "stock_name": "JIMBEAM",
-    "item_type": "liquor",
-    "bottle_count": 3,
-    "bottle_size_oz": 25,
-    "open_bottle_oz": 0,
-    "serving_size": 1.5
-  },
-  {
     "stock_name": "HENNESS",
     "item_type": "liquor",
     "bottle_count": 1,
@@ -54,14 +46,6 @@
     "bottle_count": 2,
     "bottle_size_oz": 25,
     "open_bottle_oz": 8,
-    "serving_size": 1.5
-  },
-  {
-    "stock_name": "CAMPARI",
-    "item_type": "liquor",
-    "bottle_count": 1,
-    "bottle_size_oz": 25,
-    "open_bottle_oz": 13,
     "serving_size": 1.5
   }
 ]
