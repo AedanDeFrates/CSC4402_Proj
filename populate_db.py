@@ -9,6 +9,7 @@ parser.add_argument("--target_db", type=str, default="Bar_Database")
 parser.add_argument("--socket_path", type=str, default="/var/run/mysqld/mysqld.sock")
 parser.add_argument("--liquor_pop", type=bool, default=False)
 parser.add_argument("--employee_pop", type=bool, default=False)
+parser.add_argument("--menu_pop", type=bool, default=False)
 parser.add_argument("--pop_all", type=bool, default=False)
 
 args = parser.parse_args()
@@ -48,7 +49,7 @@ def employee_populator():
             i["passcode"],
         ))
 def menu_populator():
-    with open("test_populator/menu_items.json", 'r') as f:
+    with open("test_populators/menu_items.json", 'r') as f:
         menu_items=json.load(f)
     for i in menu_items:
         cursor.execute(queries["menu_items"], (
@@ -59,7 +60,7 @@ def menu_populator():
 if __name__=="__main__":
     if args.liquor_pop or args.pop_all: liquor_populator()
     if args.employee_pop or args.pop_all: employee_populator()
-    if args.menu_populator() or args.pop_all : menu_populator()
+    if args.menu_pop or args.pop_all : menu_populator()
 
     connection.commit()
     cursor.close()

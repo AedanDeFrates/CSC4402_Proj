@@ -38,12 +38,16 @@ def verify_passcode(submission) -> bool:
 def login() -> bool:
     sg.theme('Black')
     layout = [
-        [sg.Text("Enter Passcode", font=("Helvetica", 12))],
-        [sg.Input(key="-PIN-", password_char='*', size=(10, 1), font=("Helvetica", 16), enable_events=True, justification="center")],
-        [sg.Text("", key='-STATUS-', font=("Helvetica", 10), text_color="gray")]
+        [sg.VPush()],
+        [
+            [sg.Push(), sg.Text("Enter Passcode", font=("Helvetica", 12)), sg.Push()],
+            [sg.Push(), sg.Input(key="-PIN-", password_char='*', size=(10, 1), font=("Helvetica", 16), enable_events=True, justification="center"), sg.Push()],
+            [sg.Push(), sg.Text("", key='-STATUS-', font=("Helvetica", 10), text_color="gray"), sg.Push()],
+        ],
+        [sg.VPush()]
     ]
     
-    window = sg.Window('login', layout, finalize=True)
+    window = sg.Window('login', layout, size=(600, 400), finalize=True)
     window['-PIN-'].set_focus()
     print(window['-PIN-'].get())
     authenticated = False
@@ -81,17 +85,20 @@ def sales_interface():
         [sg.Listbox(values=tabs, key='-TAB-LIST-', size=(40, 12), enable_events=True, expand_x=True, expand_y=True,)],
         [sg.Text('Selected tab:'),sg.Text('None', key='-SELECTED-TAB-'),],
         [sg.Text('', key='-TAB-STATUS-')],
-    ]
-    right_col = [
         [sg.Text('Items on selected tab'), sg.Button('Add Item', key='-ADD-ITEM-')],
         [sg.Listbox(values=[], key='-TAB-ITEMS-', size=(40, 12), expand_x=True, expand_y=True)],
         [sg.Text('Selected Item:'), sg.Text('None', key='-SELECTED-ITEM-')]
+    ]
+    
+    right_col = [
 
     ]
     layout = [
         [sg.Column(left_col, expand_x=True, expand_y=True), sg.Column(right_col, expand_x=True, expand_y=True)]
     ]
-    window = sg.Window('POS', layout, resizable=True, finalize=True)
+
+    window = sg.Window('POS', layout, size=(1200,800), resizable=True, finalize=True)
+
     while True:
         event, values = window.read()
         if event == sg.WIN_CLOSED:

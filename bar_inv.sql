@@ -46,6 +46,7 @@ CREATE TABLE Menu_Item_Alcohol_Options (
 
 CREATE TABLE Sales (
 	sale_id INT AUTO_INCREMENT PRIMARY KEY,
+	sale_name VARCHAR(30),
 	sale_time DATETIME DEFAULT CURRENT_TIMESTAMP,
 	employee_id INT NOT NULL,
 
