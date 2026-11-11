@@ -83,9 +83,10 @@ def sales_interface():
         [sg.Text('', key='-TAB-STATUS-')],
     ]
     right_col = [
-        [sg.Text('Items on selected tab')],
-        [sg.Button('Add Item', key='-ADD-ITEM-')],
+        [sg.Text('Items on selected tab'), sg.Button('Add Item', key='-ADD-ITEM-')],
         [sg.Listbox(values=[], key='-TAB-ITEMS-', size=(40, 12), expand_x=True, expand_y=True)],
+        [sg.Text('Selected Item:'), sg.Text('None', key='-SELECTED-ITEM-')]
+
     ]
     layout = [
         [sg.Column(left_col, expand_x=True, expand_y=True), sg.Column(right_col, expand_x=True, expand_y=True)]
@@ -112,7 +113,13 @@ def sales_interface():
             window['-TAB-STATUS-'].update('')
         elif event == '-ADD-ITEM-':
             continue
+        elif event == '-ITEM-LIST-' and values['-ITEM-LIST-']:
+            window['-SELECTED-ITEM-'].update(values=[])
     window.close()
+
+def add_item_interface():
+    for i in range(4):
+        break
 
 
 #TODO: 1) Make POS system. 2) Add menu items to interface to easily make sales 3) Ability to make a tab and close it (finalize sale for db)
