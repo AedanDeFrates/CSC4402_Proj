@@ -35,16 +35,6 @@ CREATE TABLE Menu_Item_Ingredients (
 	FOREIGN KEY (stock_id) REFERENCES Stock_Items(stock_id)
 );
 
--- Alcohols a menu item can be made with (for example, Tito's or Grey Goose).
-CREATE TABLE Menu_Item_Alcohol_Options (
-	menu_id INT,
-	stock_id INT,
-
-	PRIMARY KEY (menu_id, stock_id),
-	FOREIGN KEY (menu_id) REFERENCES Menu_Items(menu_id),
-	FOREIGN KEY (stock_id) REFERENCES Stock_Items(stock_id)
-);
-
 CREATE TABLE Sales (
 	sale_id INT AUTO_INCREMENT PRIMARY KEY,
 	sale_name VARCHAR(30),

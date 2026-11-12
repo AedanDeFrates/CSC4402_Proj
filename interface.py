@@ -92,6 +92,9 @@ def login() -> bool:
 def sales_interface():
     sg.theme('Black')
     tabs = []
+    tab_items = {}
+    selected_tab = None
+    selected_drink = None
     left_col = [
         [sg.Text('New tab name'),sg.Input(key='-TAB-NAME-', expand_x=True),sg.Button('Add Tab', key='-ADD-TAB-'),],
         [sg.Text('Open Tabs')],
@@ -141,15 +144,36 @@ def sales_interface():
                 window['-TAB-STATUS-'].update('A tab with that name already exists.')
             else:
                 tabs.append(tab_name)
+                tab_items[tab_name] = {}
                 window['-TAB-LIST-'].update(values=tabs)
                 window['-TAB-NAME-'].update('')
                 window['-TAB-STATUS-'].update(f'Created tab: {tab_name}')
         elif event == '-TAB-LIST-' and values['-TAB-LIST-']:
-            window['-SELECTED-TAB-'].update(values['-TAB-LIST-'][0])
-            window['-TAB-ITEMS-'].update(values=[])
+            selected_tab = values['-TAB-LIST-'][0]
+            selected_drink = None
+            window['-SELECTED-TAB-'].update(selected_tab)
+            window['-SELECTED-ITEM-'].update('None')
+            items = tab_items[selected_tab]
+            window['-TAB-ITEMS-'].update(values=[
+                f'{drink} x{count}' if count > 1 else drink
+                for drink, count in items.items()
+            ])
             window['-TAB-STATUS-'].update('')
         elif event == '-ADD-ITEM-':
-            continue
+            if selected_tab is None:
+                window['-TAB-STATUS-'].update('Select a tab before adding an item.')
+            elif selected_drink is None:
+                window['-TAB-STATUS-'].update('Select a drink before adding it.')
+            else:
+                items = tab_items[selected_tab]
+                items[selected_drink] = items.get(selected_drink, 0) + 1
+                window['-TAB-ITEMS-'].update(values=[
+                    f'{drink} x{count}' if count > 1 else drink
+                    for drink, count in items.items()
+                ])
+                window['-TAB-STATUS-'].update(
+                    f'Added {selected_drink} to {selected_tab}.'
+                )
         elif event in ('-BEER-LIST-', '-MIX-LIST-', '-SHOTS-LIST-') and values[event]:
             selected_drink = values[event][0]
             for list_key in ('-BEER-LIST-', '-MIX-LIST-', '-SHOTS-LIST-'):
@@ -163,4 +187,3 @@ def sales_interface():
 if __name__=="__main__":
     if login():
         sales_interface()
-    
