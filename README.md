@@ -33,6 +33,15 @@ SHOW Bar_Database
 
 ```
 
+Populate beer and wine stock with:
+
+```bash
+python populate_db.py --beer_pop True --wine_pop True
+```
+
+The wine data file is currently empty; add wine inventory records to
+`test_populators/wine.json` before running the wine populator.
+
 ## Interface
 
 From PySimpleGUI you can access demos by running the command below in the terminal after running installation instructions.
