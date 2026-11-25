@@ -88,8 +88,8 @@ def login() -> int:
     window.close()
     return authenticated_id
 
-def get_tabs_by_user(employee_id : int) -> list:
-    tabs_query = f"SELECT sale_name FROM Sales WHERE employee_id = %s"
+def get_tabs_by_user(employee_id: int) -> list[str]:
+    tabs_query = "SELECT sale_name FROM Sales WHERE employee_id = %s"
     try:
         cursor.execute(tabs_query, (employee_id, ))
         result = cursor.fetchall()
@@ -98,15 +98,62 @@ def get_tabs_by_user(employee_id : int) -> list:
     except mysql.connection.Error as e:
         print(f"DB Error: {e}")
         return []
-    
 
-def get_sale_items(employee_id : int, names : list) -> list:
-    return []
+def get_sale_items(employee_id: int, names: list[str]) -> dict[str, dict[str, int]]:
+    tab_items = {name: {} for name in names}
+    items_query = """
+        SELECT Sales.sale_name, Menu_Items.drink_name, Sale_Menu_Items.quantity
+        FROM Sales
+        LEFT JOIN Sale_Menu_Items ON Sales.sale_id = Sale_Menu_Items.sale_id
+        LEFT JOIN Menu_Items ON Sale_Menu_Items.menu_id = Menu_Items.menu_id
+        WHERE Sales.employee_id = %s
+        ORDER BY Sales.sale_id, Menu_Items.drink_name
+    """
+    try:
+        cursor.execute(items_query, (employee_id,))
+        for sale_name, drink_name, quantity in cursor.fetchall():
+            if sale_name in tab_items and drink_name is not None:
+                tab_items[sale_name][drink_name] = quantity
+    except mysql.connector.Error as e:
+        print(f"DB Error: {e}")
+    return tab_items
+
+def add_drink_to_sale(employee_id: int, sale_name: str, drink_name: str) -> None:
+    cursor.execute(
+        """
+        SELECT sale_id FROM Sales
+        WHERE employee_id = %s AND sale_name = %s
+        ORDER BY sale_id DESC
+        LIMIT 1
+        """,
+        (employee_id, sale_name),
+    )
+    sale = cursor.fetchone()
+    if sale is None:
+        raise ValueError(f"Tab not found: {sale_name}")
+
+    cursor.execute(
+        "SELECT menu_id FROM Menu_Items WHERE drink_name = %s LIMIT 1",
+        (drink_name,),
+    )
+    menu_item = cursor.fetchone()
+    if menu_item is None:
+        raise ValueError(f"Menu item not found: {drink_name}")
+
+    cursor.execute(
+        """
+        INSERT INTO Sale_Menu_Items (sale_id, menu_id, quantity)
+        VALUES (%s, %s, 1)
+        ON DUPLICATE KEY UPDATE quantity = quantity + 1
+        """,
+        (sale[0], menu_item[0]),
+    )
+    connection.commit()
 
 def sales_interface(employee_id : int):
     sg.theme('Black')
     tabs = get_tabs_by_user(employee_id)
-    tab_items = {}
+    tab_items = get_sale_items(employee_id, tabs)
     selected_tab = None
     selected_drink = None
     left_col = [
@@ -173,37 +220,57 @@ def sales_interface(employee_id : int):
             elif tab_name.casefold() in {name.casefold() for name in tabs}:
                 window['-TAB-STATUS-'].update('A tab with that name already exists.')
             else:
-                tabs.append(tab_name)
-                tab_items[tab_name] = {}
-                window['-TAB-LIST-'].update(values=tabs)
-                window['-TAB-NAME-'].update('')
-                window['-TAB-STATUS-'].update(f'Created tab: {tab_name}')
-        elif event == '-TAB-LIST-' and values['-TAB-LIST-']:
-            selected_tab = values['-TAB-LIST-'][0]
-            selected_drink = None
-            window['-SELECTED-TAB-'].update(selected_tab)
-            window['-SELECTED-ITEM-'].update('None')
-            items = tab_items[selected_tab]
-            window['-TAB-ITEMS-'].update(values=[
-                f'{drink} x{count}' if count > 1 else drink
-                for drink, count in items.items()
-            ])
-            window['-TAB-STATUS-'].update('')
+                try:
+                    cursor.execute(
+                        "INSERT INTO Sales (sale_name, employee_id) VALUES (%s, %s)",
+                        (tab_name, employee_id),
+                    )
+                    connection.commit()
+                except mysql.connector.Error as e:
+                    connection.rollback()
+                    print(f"DB Error: {e}")
+                    window['-TAB-STATUS-'].update(f'Could not create tab: {e}')
+                else:
+                    tabs.append(tab_name)
+                    tab_items[tab_name] = {}
+                    window['-TAB-LIST-'].update(values=tabs)
+                    window['-TAB-NAME-'].update('')
+                    window['-TAB-STATUS-'].update(f'Created tab: {tab_name}')
+        elif event == '-TAB-LIST-':
+            selected_tabs = values.get('-TAB-LIST-', [])
+            if selected_tabs:
+                selected_tab = selected_tabs[0]
+                selected_drink = None
+                window['-SELECTED-TAB-'].update(selected_tab)
+                window['-SELECTED-ITEM-'].update('None')
+                items = tab_items.get(selected_tab, {})
+                window['-TAB-ITEMS-'].update(values=[
+                    f'{drink} x{count}' if count > 1 else drink
+                    for drink, count in items.items()
+                ])
+                window['-TAB-STATUS-'].update('')
         elif event == '-ADD-ITEM-':
             if selected_tab is None:
                 window['-TAB-STATUS-'].update('Select a tab before adding an item.')
             elif selected_drink is None:
                 window['-TAB-STATUS-'].update('Select a drink before adding it.')
             else:
-                items = tab_items[selected_tab]
-                items[selected_drink] = items.get(selected_drink, 0) + 1
-                window['-TAB-ITEMS-'].update(values=[
-                    f'{drink} x{count}' if count > 1 else drink
-                    for drink, count in items.items()
-                ])
-                window['-TAB-STATUS-'].update(
-                    f'Added {selected_drink} to {selected_tab}.'
-                )
+                try:
+                    add_drink_to_sale(employee_id, selected_tab, selected_drink)
+                except (mysql.connector.Error, ValueError) as e:
+                    connection.rollback()
+                    print(f"DB Error: {e}")
+                    window['-TAB-STATUS-'].update(f'Could not save drink: {e}')
+                else:
+                    items = tab_items[selected_tab]
+                    items[selected_drink] = items.get(selected_drink, 0) + 1
+                    window['-TAB-ITEMS-'].update(values=[
+                        f'{drink} x{count}' if count > 1 else drink
+                        for drink, count in items.items()
+                    ])
+                    window['-TAB-STATUS-'].update(
+                        f'Added {selected_drink} to {selected_tab}.'
+                    )
         elif event in ('-BEER-LIST-', '-MIX-LIST-', '-SHOTS-LIST-') and values[event]:
             selected_drink = values[event][0]
             for list_key in ('-BEER-LIST-', '-MIX-LIST-', '-SHOTS-LIST-'):
