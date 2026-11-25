@@ -23,17 +23,16 @@ elif args.device == "mac":
 cursor = connection.cursor()
 usr_passcode = ''
 
-def verify_passcode(submission) -> bool:
-    query = f"SELECT passcode FROM Employees WHERE passcode = %s"
+def verify_passcode(submission) -> int:
+    verify_query = f"SELECT employee_id FROM Employees WHERE passcode = %s"
     try:
-        cursor.execute(query, (submission, ))
+        cursor.execute(verify_query, (submission, ))
         result = cursor.fetchone()
     except mysql.connector.Error as e:
         print(f"DB error: {e}")
-        return False
     if result is None:
-        return False
-    return result[0] == submission
+        return None
+    return result[0]
 
 def get_menu_items_by(drink_type : str) -> list:
     query = f"SELECT drink_name FROM Menu_Items WHERE drink_type = %s"
@@ -48,7 +47,7 @@ def get_menu_items_by(drink_type : str) -> list:
     result = [row[0] for row in result]
     return result
 
-def login() -> bool:
+def login() -> int:
     sg.theme('Black')
     layout = [
         [sg.VPush()],
@@ -78,20 +77,35 @@ def login() -> bool:
                 window['-PIN-'].update(filtered_val)
             if len(filtered_val) == 4:
                 window['-STATUS-'].update("Verifying")
-                if verify_passcode(window['-PIN-'].get()):
+                authenticated_id = verify_passcode(window['-PIN-'].get())
+                if authenticated_id is not None:
                     print('Access Granted Welcome to the system!')
-                    usr_passcode = window['-PIN-'].get()
-                    authenticated = True
+                    
                     break
                 else:
                     window['-PIN-'].update('')
                     window['-STATUS-'].update('Wrong Passcode. Try Again')
     window.close()
-    return authenticated
+    return authenticated_id
 
-def sales_interface():
+def get_tabs_by_user(employee_id : int) -> list:
+    tabs_query = f"SELECT sale_name FROM Sales WHERE employee_id = %s"
+    try:
+        cursor.execute(tabs_query, (employee_id, ))
+        result = cursor.fetchall()
+        
+        return [row[0] for row in result]
+    except mysql.connection.Error as e:
+        print(f"DB Error: {e}")
+        return []
+    
+
+def get_sale_items(employee_id : int, names : list) -> list:
+    return []
+
+def sales_interface(employee_id : int):
     sg.theme('Black')
-    tabs = []
+    tabs = get_tabs_by_user(employee_id)
     tab_items = {}
     selected_tab = None
     selected_drink = None
@@ -109,22 +123,38 @@ def sales_interface():
     beers = get_menu_items_by("beer")
     mix = get_menu_items_by("mix_drink")
     shots = get_menu_items_by("shot")
+    seltzers = []
+    wines = []
+
     right_col = [
+        [sg.VPush()],
         [
             sg.Push(),
             sg.Frame("Beers", [
-                [sg.Listbox(values=beers, key='-BEER-LIST-', size=(10, 8), enable_events=True)]
+                [sg.Listbox(values=beers, key='-BEER-LIST-', size=(14, 10), enable_events=True)]
                 ], expand_x=True, expand_y=True),
             sg.Push(),
             sg.Frame("Mixed Drinks", [
-                [sg.Listbox(values=mix, key='-MIX-LIST-', size=(10, 8), enable_events=True)]
+                [sg.Listbox(values=mix, key='-MIX-LIST-', size=(14, 10), enable_events=True)]
                 ], expand_x=True, expand_y=True),
             sg.Push(),
             sg.Frame("Shots", [
-                [sg.Listbox(values=shots, key='-SHOTS-LIST-', size=(10, 8), enable_events=True)]
+                [sg.Listbox(values=shots, key='-SHOTS-LIST-', size=(14, 10), enable_events=True)]
                 ], expand_x=True, expand_y=True),
             sg.Push(),
         ],
+        [
+            sg.Push(),
+            sg.Frame("Wines", [
+                [sg.Listbox(values=wines, key='-WINE-LIST-', size=(14, 10), enable_events=True)]
+            ], expand_x=True, expand_y=True),
+            sg.Push(),
+            sg.Frame("Seltzers", [
+                [sg.Listbox(values=seltzers, key='-SELTZER-LIST-', size=(14, 10), enable_events=True)]
+            ], expand_x=True, expand_y=True),
+            sg.Push(),
+        ],
+        [sg.VPush()]
     ]
     layout = [
         [sg.Column(left_col, expand_x=True, expand_y=True), sg.Column(right_col, expand_x=True, expand_y=True)]
@@ -182,8 +212,6 @@ def sales_interface():
             window['-SELECTED-ITEM-'].update(selected_drink)
     window.close()
 
-#TODO: 1) Make POS system. 2) Add menu items to interface to easily make sales 3) Ability to make a tab and close it (finalize sale for db)
-
 if __name__=="__main__":
-    if login():
-        sales_interface()
+    employee_id = login()
+    sales_interface(employee_id)

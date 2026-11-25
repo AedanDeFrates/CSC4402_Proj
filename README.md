@@ -42,3 +42,8 @@ PySimpleGUI
 ```
 
 Our interface script was built by expanding, editing, and reworking Demo_Borderless_Window.py.
+
+The POS interface saves each new tab as a sale for the logged-in employee and
+saves item quantities as items are added. Tabs remain available the next time
+that employee logs in. Existing databases are updated automatically to add the
+sale-item quantity column.

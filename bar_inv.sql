@@ -49,10 +49,11 @@ CREATE TABLE Sale_Menu_Items (
 	sale_id INT,
 	menu_id INT,
 	alcohol_stock_id INT NULL,
+	quantity INT NOT NULL DEFAULT 1,
 
 	PRIMARY KEY (sale_id, menu_id),
 	FOREIGN KEY (sale_id) REFERENCES Sales(sale_id),
 	FOREIGN KEY (menu_id) REFERENCES Menu_Items(menu_id),
 	FOREIGN KEY (menu_id, alcohol_stock_id)
-		REFERENCES Menu_Item_Alcohol_Options(menu_id, stock_id)
+		REFERENCES Menu_Item_Ingredients(menu_id, stock_id)
 );
