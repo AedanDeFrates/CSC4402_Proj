@@ -1,23 +1,17 @@
 [
-    {
-        "drink_name" : "Bud Light",
-        "price" : 4.5,
-        "drink_type" : "beer"
+    { "drink_name" : "Bud Light",    "price" : 4.5, "drink_type" : "beer" },
+    { "drink_name" : "Coors Light",  "price" : 4.5, "drink_type" : "beer" },
+    { "drink_name" : "Miller Lite",  "price" : 4.5, "drink_type" : "beer" },
+    { "drink_name" : "Corona Extra", "price" : 4.5, "drink_type" : "beer" },
+    { "drink_name" : "Heineken",     "price" : 4.5, "drink_type" : "beer" },
 
-    },
-    {
-        "drink_name" : "Miller Lite",
-        "price" : 4.5,
-        "drink_type" : "beer"
-    },
-    {
-        "drink_name" : "Corona Extra",
-        "price" : 4.5,
-        "drink_type" : "beer"
-    },
-    {
-        "drink_name" : "Heineken",
-        "price" : 4.5,
-        "drink_type":"beer"
-    }
+    { "drink_name" : "Jameson Shot",  "price" : 6.0, "drink_type" : "shot" },
+    { "drink_name" : "Fireball Shot", "price" : 5.0, "drink_type" : "shot" },
+    { "drink_name" : "Jager Shot",    "price" : 6.0, "drink_type" : "shot" },
+    { "drink_name" : "Hennessy Shot", "price" : 8.0, "drink_type" : "shot" },
+
+    { "drink_name" : "Vodka Soda",     "price" : 7.0, "drink_type" : "mix_drink" },
+    { "drink_name" : "Jack and Coke",  "price" : 7.5, "drink_type" : "mix_drink" },
+    { "drink_name" : "Whiskey Ginger", "price" : 7.5, "drink_type" : "mix_drink" },
+    { "drink_name" : "Henny and Coke", "price" : 9.0, "drink_type" : "mix_drink" }
 ]
