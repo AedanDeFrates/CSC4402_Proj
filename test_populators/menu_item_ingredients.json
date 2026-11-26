@@ -1,0 +1,17 @@
+[
+    { "drink_name" : "Bud Light",    "stock_names" : ["Bud Light"] },
+    { "drink_name" : "Coors Light",  "stock_names" : ["Coors Light"] },
+    { "drink_name" : "Miller Lite",  "stock_names" : ["Miller Lite"] },
+    { "drink_name" : "Corona Extra", "stock_names" : ["Corona Extra"] },
+    { "drink_name" : "Heineken",     "stock_names" : ["Heineken"] },
+
+    { "drink_name" : "Jameson Shot",  "stock_names" : ["JAMESON"] },
+    { "drink_name" : "Fireball Shot", "stock_names" : ["FIREBAL"] },
+    { "drink_name" : "Jager Shot",    "stock_names" : ["JAGER"] },
+    { "drink_name" : "Hennessy Shot", "stock_names" : ["HENNESS"] },
+
+    { "drink_name" : "Vodka Soda",     "stock_names" : ["TITOS"] },
+    { "drink_name" : "Jack and Coke",  "stock_names" : ["JACK"] },
+    { "drink_name" : "Whiskey Ginger", "stock_names" : ["JACK", "JAMESON"] },
+    { "drink_name" : "Henny and Coke", "stock_names" : ["HENNESS"] }
+]
