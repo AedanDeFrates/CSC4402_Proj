@@ -1,4 +1,4 @@
-"""All database work for interface.py lives here (no GUI code).
+"""Database work for interface.py and analytics.py lives here (no GUI code).
 
 Every function takes an open connection first. Reads return plain dicts/lists.
 Functions raise mysql.connector.Error on database problems (duplicate names, rows that
@@ -192,9 +192,87 @@ def record_sales(conn, tabs):
         cur.close()
 
 
-def sales_count_for_date(conn, night):
-    """How many sales are recorded on `night` ('YYYY-MM-DD')."""
-    return _rows(conn, "SELECT COUNT(*) AS n FROM Sales WHERE DATE(sale_time) = %s", (night,))[0]["n"]
+def sales_count_for_date(conn, night=None):
+    """How many sales are recorded, optionally limited to `night` ('YYYY-MM-DD')."""
+    sql = "SELECT COUNT(*) AS n FROM Sales"
+    params = ()
+    if night is not None:
+        sql += " WHERE DATE(sale_time) = %s"
+        params = (night,)
+    return _rows(conn, sql, params)[0]["n"]
+
+
+def total_revenue(conn, night=None):
+    """Paid-sales revenue, optionally limited to `night` ('YYYY-MM-DD')."""
+    sql = """
+        SELECT COALESCE(SUM(m.price * sm.quantity), 0) AS revenue
+        FROM Sales s
+        JOIN Sale_Menu_Items sm ON sm.sale_id = s.sale_id
+        JOIN Menu_Items m ON m.menu_id = sm.menu_id
+        WHERE s.is_comp = 0"""
+    params = ()
+    if night is not None:
+        sql += " AND DATE(s.sale_time) = %s"
+        params = (night,)
+    return float(_rows(conn, sql, params)[0]["revenue"])
+
+
+def revenue_by_employee(conn):
+    """Return each employee with paid sales, matching test query 1."""
+    return _rows(conn, """
+        SELECT e.employee_name, e.employee_role,
+               COUNT(DISTINCT s.sale_id) AS num_tabs,
+               ROUND(SUM(m.price * sm.quantity), 2) AS revenue
+        FROM Employees e
+        JOIN Sales s ON s.employee_id = e.employee_id
+        JOIN Sale_Menu_Items sm ON sm.sale_id = s.sale_id
+        JOIN Menu_Items m ON m.menu_id = sm.menu_id
+        WHERE s.is_comp = 0
+        GROUP BY e.employee_id, e.employee_name, e.employee_role
+        ORDER BY revenue DESC""")
+
+
+def top_selling_drinks(conn, limit=5):
+    """Return the best-selling paid menu items, matching test query 2."""
+    if not isinstance(limit, int) or limit < 1:
+        raise ValueError("limit must be a positive integer")
+    return _rows(conn, """
+        SELECT m.drink_name, m.drink_type, SUM(sm.quantity) AS units_sold,
+               ROUND(SUM(m.price * sm.quantity), 2) AS revenue
+        FROM Menu_Items m
+        JOIN Sale_Menu_Items sm ON sm.menu_id = m.menu_id
+        JOIN Sales s ON s.sale_id = sm.sale_id
+        WHERE s.is_comp = 0
+        GROUP BY m.menu_id, m.drink_name, m.drink_type
+        ORDER BY units_sold DESC, m.drink_name
+        LIMIT %s""", (limit,))
+
+
+def low_inventory(conn):
+    """Return stock below the average unopened-bottle count for its type."""
+    return _rows(conn, """
+        SELECT st.stock_id, st.stock_name, st.item_type, st.bottle_count,
+               st.open_bottle_oz
+        FROM Stock_Items st
+        WHERE st.bottle_count < (
+            SELECT AVG(other.bottle_count)
+            FROM Stock_Items other
+            WHERE other.item_type = st.item_type
+        )
+        ORDER BY st.item_type, st.bottle_count, st.stock_name""")
+
+
+def variance_alerts(conn, night=None):
+    """Return flagged pour variances for `night` or the latest counted date."""
+    if night is None:
+        latest = _rows(conn, """
+            SELECT MAX(count_date) AS latest_night
+            FROM Inventory_Counts""")[0]["latest_night"]
+        if latest is None:
+            return []
+        night = latest
+    alerts = [row for row in variance_report(conn, night) if row["flag"] == "CHECK"]
+    return sorted(alerts, key=lambda row: row["variance"], reverse=True)[:10]
 
 
 # ---------------------------------------------------- counts and variance

@@ -98,6 +98,9 @@ python interface.py --password YOUR_PASSWORD
 Log in with a 4-digit passcode (starter data: manager `1111`, bartenders `2222`, `3333`, and `4444`).
 
 Bartenders can open tabs and add or remove drinks. Managers also have access to Record Night, Night Close-out, and Admin features.
+The manager-only Dashboard shows today's and all-time paid revenue, today's sales
+count, top-selling drinks, low-inventory items, and variance alerts from the latest
+counted night.
 
 FreeSimpleGUI is used as the primary GUI package, with PySimpleGUI as a fallback. It was developed by expanding, editing, and reworking `Demo_Borderless_Window.py`.
 
@@ -107,6 +110,8 @@ FreeSimpleGUI is used as the primary GUI package, with PySimpleGUI as a fallback
 |---|---|
 | `bar_inv.sql` | Database schema (tables, keys, and constraints) |
 | `bar_db.py` | Handles database operations for inventory, menus, employees, and sales. |
+| `analytics.py` | Provides revenue, sales, top-drink, low-inventory, and pour-variance reports. |
+| `dashboard.py` | Displays the manager dashboard using `analytics.py`. |
 | `db_connect.py` | Shared database connection helper |
 | `recreate_db.py` | Rebuilds the database from the schema |
 | `populate_db.py` | Loads starter data from `test_populators/*.json` |

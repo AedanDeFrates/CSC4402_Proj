@@ -8,7 +8,8 @@ Screens
   2. POS             - open tabs, add / remove drinks, COMP tab; manager can "Record Night"
   3. Night Close-out - manager enters end-of-night bottle counts/weights and sees the
                        expected-vs-actual pour (variance) report
-  4. Admin           - manager adds / edits / deletes stock, menu items and employees
+  4. Dashboard       - manager views revenue, sales, and inventory / variance alerts
+  5. Admin           - manager adds / edits / deletes stock, menu items and employees
 
 All SQL lives in bar_db.py. This file only builds windows and reacts to clicks.
 """
@@ -22,6 +23,7 @@ except ImportError:
     import PySimpleGUI as sg        # fallback if that is what is installed
 
 import bar_db
+import dashboard
 from bar_db import Error
 from db_connect import add_connection_args
 
@@ -202,7 +204,7 @@ def choose_bottle(menu_item):
 
 
 def pos_screen(conn, user, state):
-    """The tab screen. Returns 'logout', 'closeout', 'admin' or 'quit'."""
+    """The tab screen. Returns 'logout', 'closeout', 'admin', 'dashboard' or 'quit'."""
     sg.theme('Black')
     is_manager = user["employee_role"] == "manager"
     ok, menu = db_call(bar_db.get_menu, conn)
@@ -240,6 +242,7 @@ def pos_screen(conn, user, state):
     bottom = [
         sg.Button('Record Night', key='-RECORD-', disabled=not is_manager),
         sg.Button('Night Close-out', key='-CLOSEOUT-', disabled=not is_manager),
+        sg.Button('Dashboard', key='-DASHBOARD-', disabled=not is_manager),
         sg.Button('Admin', key='-ADMIN-', disabled=not is_manager),
         sg.Push(),
         sg.Button('Log out', key='-LOGOUT-'),
@@ -393,6 +396,9 @@ def pos_screen(conn, user, state):
             break
         elif event == '-ADMIN-' and is_manager:
             action = 'admin'
+            break
+        elif event == '-DASHBOARD-' and is_manager:
+            action = 'dashboard'
             break
         elif event == '-LOGOUT-':
             action = 'logout'
@@ -779,6 +785,8 @@ def main():
             closeout_screen(conn, user)
         elif action == 'admin':
             admin_screen(conn, user)
+        elif action == 'dashboard':
+            dashboard.dashboard_screen(conn, date.today().isoformat())
         elif action == 'logout':
             user = login(conn)
         else:
